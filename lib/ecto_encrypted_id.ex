@@ -11,18 +11,34 @@ defmodule EctoEncryptedId do
   @doc """
   Helper function to delegate to Phoenix.Param implementations for Ecto schemas.
   Returns encrypted version of the id.
+
+  ## Example
+
+  In your schema module:
+
+      defimpl Phoenix.Param, for: __MODULE__ do
+        defdelegate to_param(term), to: EctoEncryptedId, as: :encrypted_param
+      end
   """
   def encrypted_param(%{id: %{encrypted: id}}), do: id
 
   @doc """
   Helper function to delegate to Phoenix.Param implementations for Ecto schemas.
   Returns plain version of the id.
+
+  ## Example
+
+  In your schema module:
+
+      defimpl Phoenix.Param, for: __MODULE__ do
+        defdelegate to_param(term), to: EctoEncryptedId, as: :plain_param
+      end
   """
   def plain_param(%{id: %{plain: id}}), do: id
 
   defmodule DecryptionError do
     @moduledoc """
-    Error raised when the library can't decrypt a value
+    Exception raised when bang `c:from_encrypted!/2` functions can't decrypt a value
     """
     defexception [:message, plug_status: 400]
   end
@@ -36,7 +52,7 @@ defmodule EctoEncryptedId do
 
       defmodule Id do
         @moduledoc """
-        Container module for the encrypted field.
+        Container type for the encrypted field.
         Implements struct storing the id and related functions.
         """
         alias EctoEncryptedId.Encryption
@@ -51,9 +67,11 @@ defmodule EctoEncryptedId do
 
         @doc """
         Create id struct from an encrypted value.
-        Returns {:ok, %Id{}} on success or :error on failure
+        When `key` argument is not provided uses the secret key function.
+
+        Returns `{:ok, %Id{}}` on success or :error on failure
         """
-        @spec from_encrypted(String.t(), binary()) :: {:ok, t()} | :error
+        @spec from_encrypted(id :: String.t(), key :: binary()) :: {:ok, t()} | :error
         def from_encrypted(id, key \\ unquote(secret_key_fn).()) do
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> {:ok, %__MODULE__{encrypted: id, plain: decrypted}}
@@ -63,10 +81,12 @@ defmodule EctoEncryptedId do
 
         @doc """
         Create id struct from an encrypted value.
-        Returns %Id{} on success.
-        Throws DecryptionError on failure.
+        When `key` argument is not provided uses the secret key function.
+
+        Returns `%Id{}` on success.
+        Throws `EctoEncryptedId.DecryptionError` on failure.
         """
-        @spec from_encrypted!(String.t(), binary()) :: t()
+        @spec from_encrypted!(id :: String.t(), key :: binary()) :: t()
         def from_encrypted!(id, key \\ unquote(secret_key_fn).()) do
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> %__MODULE__{encrypted: id, plain: decrypted}
