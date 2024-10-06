@@ -3,11 +3,27 @@ defmodule EctoEncryptedId do
   Documentation for `EctoEncryptedId`.
   """
 
+  @doc false
   def app_env_key() do
     Application.fetch_env!(:ecto_encrypted_id, :settings)[:secret_key]
   end
 
+  @doc """
+  Helper function to delegate to Phoenix.Param implementations for Ecto schemas.
+  Returns encrypted version of the id.
+  """
+  def encrypted_param(%{id: %{encrypted: id}}), do: id
+
+  @doc """
+  Helper function to delegate to Phoenix.Param implementations for Ecto schemas.
+  Returns plain version of the id.
+  """
+  def plain_param(%{id: %{plain: id}}), do: id
+
   defmodule DecryptionError do
+    @moduledoc """
+    Error raised when the library can't decrypt a value
+    """
     defexception [:message, plug_status: 400]
   end
 
@@ -19,6 +35,10 @@ defmodule EctoEncryptedId do
       use Ecto.Type
 
       defmodule Id do
+        @moduledoc """
+        Container module for the encrypted field.
+        Implements struct storing the id and related functions.
+        """
         alias EctoEncryptedId.Encryption
 
         @type t :: %__MODULE__{
@@ -29,7 +49,11 @@ defmodule EctoEncryptedId do
         @enforce_keys [:encrypted, :plain]
         defstruct [:encrypted, :plain]
 
-        @spec from_encrypted(String.t(), binary()) :: {:ok, __MODULE__.t()} | :error
+        @doc """
+        Create id struct from an encrypted value.
+        Returns {:ok, %Id{}} on success or :error on failure
+        """
+        @spec from_encrypted(String.t(), binary()) :: {:ok, t()} | :error
         def from_encrypted(id, key \\ unquote(secret_key_fn).()) do
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> {:ok, %__MODULE__{encrypted: id, plain: decrypted}}
@@ -37,7 +61,12 @@ defmodule EctoEncryptedId do
           end
         end
 
-        @spec from_encrypted!(String.t(), binary()) :: __MODULE__.t()
+        @doc """
+        Create id struct from an encrypted value.
+        Returns %Id{} on success.
+        Throws DecryptionError on failure.
+        """
+        @spec from_encrypted!(String.t(), binary()) :: t()
         def from_encrypted!(id, key \\ unquote(secret_key_fn).()) do
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> %__MODULE__{encrypted: id, plain: decrypted}
@@ -45,7 +74,11 @@ defmodule EctoEncryptedId do
           end
         end
 
-        @spec from_plain(integer(), binary()) :: __MODULE__.t()
+        @doc """
+        Create id struct from a plain integer value.
+        Returns %Id{}.
+        """
+        @spec from_plain(integer(), binary()) :: t()
         def from_plain(id, key \\ unquote(secret_key_fn).()) do
           %__MODULE__{
             encrypted: Encryption.encrypt(id, key, unquote(iv_salt)),
@@ -53,10 +86,6 @@ defmodule EctoEncryptedId do
           }
         end
       end
-
-      # Optional Phoenix.Param impl
-      def encrypted_param(%{id: %Id{encrypted: id}}), do: id
-      def plain_param(%{id: %Id{plain: id}}), do: id
 
       # To avoid leaking plain ids in HTML
       if Code.ensure_loaded?(Phoenix.HTML.Safe) do
