@@ -1,9 +1,9 @@
 # About
 
 The library provides an easy way to create deterministically encrypted 
-integer id fields for Ecto schemas. The fields can be used to hide actual
-integer PK values from the outside world by replacing them with encrypted
-versions (for example, in URLs).
+and authenticated integer id fields for Ecto schemas. The fields can be 
+used to hide actual integer PK values from the outside world by replacing
+them with encrypted versions (for example, in URLs).
 
 
 ## Why
@@ -21,7 +21,7 @@ I'm one of the early adopters and your business is not as established
 as it portrays itself!
 
 Using encryption on-the-fly is a great alternative to UUID primary keys 
-in your database - using CPU cycles of your application servers in most 
+in your database - spending CPU cycles of your application servers in most 
 cases is much better than wasting storage and memory of the DB server. 
 Also UUIDs spread like a virus through foreign keys, unless you create
 a separate integer field for references, which is a waste too.
@@ -45,7 +45,7 @@ def deps do
   ]
 end
 ```
-Prepare a 32bit encryption key. If you are using Phoenix:
+Prepare a 32bytes encryption key. If you are using Phoenix:
 ```shell
 $ mix phx.gen.secret
 
@@ -64,11 +64,11 @@ providing the key (we will discuss it later).
 
 For every Ecto schema that will use an encrypted id in your project you should 
 consider creating a separate module. The name of the module doesn't matter, but
-it's better to name your modules so it's easy to understand which Id module 
+it's better to name your modules in a way that it's easy to understand which Id module 
 corresponds to which schema. Let's say you have a Post schema:
 ```elixir
 defmodule MyProject.PostId do
-  use EctoEncryptedId, salt: "my_salt"
+  use EctoEncryptedId, salt: "my salt"
 end
 ```
 Note the `salt` parameter: it must be a string that is unique between field modules,
@@ -77,7 +77,7 @@ so that different models (schemas) don't share the same encrypted ids.
 If you prefer to provide secret key in a different way, not by using app 
 environment, you can pass a function returning the key like this:
 ```elixir
-use EctoEncryptedId, salt: "my_salt", secret_key_fn: &MyProject.Secret.key/0
+use EctoEncryptedId, salt: "my salt", secret_key_fn: &MyProject.Secret.key/0
 ```
 
 After that, add the field as a primary key for the schema. This example
@@ -126,12 +126,11 @@ ids.
 
 ## Important Considerations
 
-It may take a bit of time getting used to non-scalar id in models. But the library
+It may take a bit of time getting used to non-scalar id in models. The library
 doesn't try to make important decisions implicitly - as a developer you will
 have to decide whether to use encrypted version or integer one, on a case-by-case
-basis. Also, the additional decryption/encryption step for URLs may seem annoying,
-and maybe it is, but the advantages brought by the library are worth the trouble
-in many cases.
+basis. The additional decryption/encryption step for URLs may seem annoying,
+and maybe it is, but very often the advantages are worth the trouble.
 
 The encryption we use is deterministic - the encrypted id is defined by the secret
 key and the salt. As long as you don't change them you can use the encrypted ids in
@@ -141,7 +140,7 @@ Also, as we discussed earlier, every field module should use different salt. The
 is not secret, but the encryption key is.
 
 Don't use existing secret keys from your project as the key for this library -
-in case there's a possible leak, you should always change secrets that guard
+in case there's been a possible leak, you should always change secrets that guard
 real security stuff, like passwords and bank accounts, but in the case of this 
 library, you could even prefer to keep using the leaked key just to avoid breaking
 the permalinks. It's not like we are guarding government secrets here, right ? RIGHT ?

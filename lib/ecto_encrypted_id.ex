@@ -38,7 +38,7 @@ defmodule EctoEncryptedId do
 
   defmodule DecryptionError do
     @moduledoc """
-    Exception raised when bang `c:from_encrypted!/2` functions can't decrypt a value
+    Exception raised when bang `from_encrypted!/2` functions can't decrypt a value
     """
     defexception [:message, plug_status: 400]
   end
@@ -67,12 +67,15 @@ defmodule EctoEncryptedId do
 
         @doc """
         Create id struct from an encrypted value.
-        When `key` argument is not provided uses the secret key function.
+
+        Supported options:
+        - :secret_key_fn - custom function to fetch secret key
 
         Returns `{:ok, %Id{}}` on success or :error on failure
         """
-        @spec from_encrypted(id :: String.t(), key :: binary()) :: {:ok, t()} | :error
-        def from_encrypted(id, key \\ unquote(secret_key_fn).()) do
+        @spec from_encrypted(id :: String.t(), opts :: keyword()) :: {:ok, t()} | :error
+        def from_encrypted(id, opts \\ []) do
+          key = Keyword.get(opts, :secret_key_fn, unquote(secret_key_fn)).()
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> {:ok, %__MODULE__{encrypted: id, plain: decrypted}}
             :error -> :error
@@ -81,13 +84,18 @@ defmodule EctoEncryptedId do
 
         @doc """
         Create id struct from an encrypted value.
-        When `key` argument is not provided uses the secret key function.
+        When `key` argument is not provided use the secret key function
+        (default function gets the key from the application environment).
+
+        Supported options:
+        - :secret_key_fn - custom function to fetch secret key
 
         Returns `%Id{}` on success.
-        Throws `EctoEncryptedId.DecryptionError` on failure.
+        Raises `EctoEncryptedId.DecryptionError` on failure.
         """
-        @spec from_encrypted!(id :: String.t(), key :: binary()) :: t()
-        def from_encrypted!(id, key \\ unquote(secret_key_fn).()) do
+        @spec from_encrypted!(id :: String.t(), opts :: keyword()) :: t()
+        def from_encrypted!(id, opts \\ []) do
+          key = Keyword.get(opts, :secret_key_fn, unquote(secret_key_fn)).()
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> %__MODULE__{encrypted: id, plain: decrypted}
             :error -> raise(DecryptionError, "Invalid encrypted id: " <> id)
@@ -96,10 +104,15 @@ defmodule EctoEncryptedId do
 
         @doc """
         Create id struct from a plain integer value.
+
+        Supported options:
+        - :secret_key_fn - custom function to fetch secret key
+
         Returns %Id{}.
         """
-        @spec from_plain(integer(), binary()) :: t()
-        def from_plain(id, key \\ unquote(secret_key_fn).()) do
+        @spec from_plain(id :: integer(), opts :: keyword()) :: t()
+        def from_plain(id, opts \\ []) do
+          key = Keyword.get(opts, :secret_key_fn, unquote(secret_key_fn)).()
           %__MODULE__{
             encrypted: Encryption.encrypt(id, key, unquote(iv_salt)),
             plain: id

@@ -17,24 +17,26 @@ defmodule EctoEncryptedIdTest do
 
   test "from_encrypted creates Id" do
     enc = Encryption.encrypt(123, @key, "whatever")
-    assert Id.from_encrypted(enc, @key) == {:ok, %Id{encrypted: enc, plain: 123}}
+    assert Id.from_encrypted(enc, secret_key_fn: fn -> @key end) == {:ok, %Id{encrypted: enc, plain: 123}}
   end
 
   test "from_encrypted returns :error with invalid input" do
-    assert Id.from_encrypted("wut", @key) == :error
+    assert Id.from_encrypted("wut", secret_key_fn: fn -> @key end) == :error
   end
 
   test "from_encrypted! creates Id" do
     enc = Encryption.encrypt(123, @key, "whatever")
-    assert Id.from_encrypted!(enc, @key) == %Id{encrypted: enc, plain: 123}
+    assert Id.from_encrypted!(enc, secret_key_fn: fn -> @key end) == %Id{encrypted: enc, plain: 123}
   end
 
   test "from_encrypted! raises with invalid input" do
-    assert_raise EctoEncryptedId.DecryptionError, fn -> Id.from_encrypted!("wut", @key) end
+    assert_raise EctoEncryptedId.DecryptionError, fn ->
+      Id.from_encrypted!("wut", secret_key_fn: fn -> @key end)
+    end
   end
 
   test "from_plain creates Id" do
     enc = Encryption.encrypt(123, @key, "whatever")
-    assert Id.from_plain(123, @key) == %Id{encrypted: enc, plain: 123}
+    assert Id.from_plain(123, secret_key_fn: fn -> @key end) == %Id{encrypted: enc, plain: 123}
   end
 end
