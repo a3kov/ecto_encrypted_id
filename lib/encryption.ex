@@ -6,7 +6,7 @@ defmodule EctoEncryptedId.Encryption do
   @doc """
   Encrypt the value using AES256GCM cypher, then encode using Base62
   """
-  @spec encrypt(integer(), binary(), binary()) :: String.t()
+  @spec encrypt(num :: integer(), key :: binary(), salt :: binary()) :: String.t()
   def encrypt(num, key, salt) do
     <<num :: integer-signed-64>>
     |> aes_encrypt(key, salt)
@@ -17,7 +17,7 @@ defmodule EctoEncryptedId.Encryption do
   @doc """
   Decode the value from Base62, then decrypt using AES256GCM cypher.
   """
-  @spec decrypt(String.t(), binary()) :: {:ok, integer()} | :error
+  @spec decrypt(encrypted :: String.t(), key :: binary()) :: {:ok, integer()} | :error
   def decrypt(encrypted, key) do
     with {:ok, decoded_int} <- Base62.decode(encrypted),
       encrypted_bin <- <<decoded_int :: integer-unsigned-320>>, # encrypted size is 40 bytes
