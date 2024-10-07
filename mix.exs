@@ -15,6 +15,7 @@ defmodule EctoEncryptedId.MixProject do
       # Hex
       description: "Encrypted integer id fields for Ecto schemas",
       package: [
+        files: ~w(lib .formatter.exs mix.exs README*),
         licenses: ["MIT"],
         links: %{"GitHub" => @source_url}
       ],
