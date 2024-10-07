@@ -85,8 +85,6 @@ defmodule EctoEncryptedId do
 
         @doc """
         Create id struct from an encrypted value.
-        When `key` argument is not provided use the secret key function
-        (default function gets the key from the application environment).
 
         Supported options:
         - :secret_key_fn - custom function to fetch secret key
