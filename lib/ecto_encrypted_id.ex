@@ -108,7 +108,7 @@ defmodule EctoEncryptedId do
         Supported options:
         - :secret_key_fn - custom function to fetch secret key
 
-        Returns %Id{}.
+        Returns `%Id{}`.
         """
         @spec from_plain(id :: integer(), opts :: keyword()) :: t()
         def from_plain(id, opts \\ []) do
