@@ -7,7 +7,7 @@ if Mix.env() != :prod do
 
     @doc false
     def secret_key() do
-      "U21b5SCcJbAdhsNKweLLqBwexU3mvOXJPHNG5tjxJstWraDeI0nceFLQdkHK4WNF"
+      "NkhH77JcsCasa2HQHJZt10HbL1QLtj7S"
     end
 
     use EctoEncryptedId, salt: "", secret_key_fn: &EctoEncryptedId.ExampleField.secret_key/0

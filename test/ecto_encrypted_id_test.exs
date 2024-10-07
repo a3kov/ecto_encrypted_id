@@ -3,8 +3,7 @@ defmodule EctoEncryptedIdTest do
   alias EctoEncryptedId.Encryption
   doctest EctoEncryptedId
 
-  @key <<78, 183, 35, 57, 53, 47, 79, 158, 4, 192, 130, 186, 141, 177, 99, 47, 158,
-      144, 191, 151, 117, 90, 135, 197, 213, 88, 224, 32, 244, 111, 219, 223>>
+  @key "NkhH77JcsCasa2HQHJZt10HbL1QLtj7S"
 
   def key(), do: @key
 

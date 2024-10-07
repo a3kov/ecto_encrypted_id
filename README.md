@@ -47,7 +47,7 @@ end
 ```
 Prepare a 32bytes encryption key. If you are using Phoenix:
 ```shell
-$ mix phx.gen.secret
+$ mix phx.gen.secret 32
 
 ```
 By default the library will try to use secret key provided in the application
