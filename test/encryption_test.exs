@@ -1,4 +1,4 @@
-defmodule Encryption do
+defmodule EctoEncryptedIdEncryptionTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
   alias EctoEncryptedId.Encryption
