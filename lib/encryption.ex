@@ -8,7 +8,7 @@ defmodule EctoEncryptedId.Encryption do
   """
   @spec encrypt(num :: integer(), key :: binary(), salt :: binary()) :: String.t()
   def encrypt(num, key, salt) do
-    <<num :: integer-signed-64>>
+    <<num::integer-signed-64>>
     |> aes_encrypt(key, salt)
     |> :binary.decode_unsigned()
     |> Base62.encode()
@@ -20,10 +20,10 @@ defmodule EctoEncryptedId.Encryption do
   @spec decrypt(encrypted :: String.t(), key :: binary()) :: {:ok, integer()} | :error
   def decrypt(encrypted, key) do
     with {:ok, decoded_int} <- Base62.decode(encrypted),
-      encrypted_bin <- <<decoded_int :: integer-unsigned-320>>, # encrypted size is 40 bytes
-      decrypted when is_binary(decrypted) <- aes_decrypt(encrypted_bin, key) do
-
-      <<num :: integer-signed-64>> = decrypted
+         # encrypted size is 40 bytes
+         encrypted_bin <- <<decoded_int::integer-unsigned-320>>,
+         decrypted when is_binary(decrypted) <- aes_decrypt(encrypted_bin, key) do
+      <<num::integer-signed-64>> = decrypted
       {:ok, num}
     end
   end

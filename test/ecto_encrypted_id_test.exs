@@ -10,6 +10,7 @@ defmodule EctoEncryptedIdTest do
   defmodule TestField do
     use EctoEncryptedId, salt: "whatever", secret_key_fn: &EctoEncryptedIdTest.key/0
   end
+
   alias TestField.Id
 
   test "from_encrypted creates Id" do

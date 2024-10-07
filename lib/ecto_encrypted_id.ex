@@ -58,9 +58,9 @@ defmodule EctoEncryptedId do
         alias EctoEncryptedId.Encryption
 
         @type t :: %__MODULE__{
-          encrypted: String.t(),
-          plain: integer()
-        }
+                encrypted: String.t(),
+                plain: integer()
+              }
 
         @enforce_keys [:encrypted, :plain]
         defstruct [:encrypted, :plain]
@@ -76,6 +76,7 @@ defmodule EctoEncryptedId do
         @spec from_encrypted(id :: String.t(), opts :: keyword()) :: {:ok, t()} | :error
         def from_encrypted(id, opts \\ []) do
           key = Keyword.get(opts, :secret_key_fn, unquote(secret_key_fn)).()
+
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> {:ok, %__MODULE__{encrypted: id, plain: decrypted}}
             :error -> :error
@@ -96,6 +97,7 @@ defmodule EctoEncryptedId do
         @spec from_encrypted!(id :: String.t(), opts :: keyword()) :: t()
         def from_encrypted!(id, opts \\ []) do
           key = Keyword.get(opts, :secret_key_fn, unquote(secret_key_fn)).()
+
           case Encryption.decrypt(id, key) do
             {:ok, decrypted} -> %__MODULE__{encrypted: id, plain: decrypted}
             :error -> raise(DecryptionError, "Invalid encrypted id: " <> id)
@@ -113,6 +115,7 @@ defmodule EctoEncryptedId do
         @spec from_plain(id :: integer(), opts :: keyword()) :: t()
         def from_plain(id, opts \\ []) do
           key = Keyword.get(opts, :secret_key_fn, unquote(secret_key_fn)).()
+
           %__MODULE__{
             encrypted: Encryption.encrypt(id, key, unquote(iv_salt)),
             plain: id
