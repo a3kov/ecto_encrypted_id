@@ -8,7 +8,7 @@ defmodule EctoEncryptedId.MixProject do
     [
       app: :ecto_encrypted_id,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.13",
       deps: deps(),
       source_url: @source_url,
 
