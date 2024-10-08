@@ -20,11 +20,10 @@ your fresh website, and my user id is 5 - as a user I will instantly know
 I'm one of the early adopters and your business is not as established
 as it portrays itself!
 
-Using encryption on-the-fly is a great alternative to UUID primary keys 
-in your database - spending CPU cycles of your application servers in most 
-cases is much better than wasting storage and memory of the DB server. 
-Also UUIDs spread like a virus through foreign keys, unless you create
-a separate integer field for references, which is a waste too.
+Using encryption on-the-fly is a great alternative to using large primary
+keys (such as UUID) in your database - in many cases it's much better 
+to spend CPU cycles of your application servers rather than storage, RAM,
+and CPU of the DB server.
 
 The library mostly targets Postgres and you can encrypt any integer 
 column Postgres supports (normal and autoincrement, signed and unsigned).
@@ -126,11 +125,12 @@ ids.
 
 ## Important Considerations
 
-It may take a bit of time getting used to non-scalar id in models. The library
-doesn't try to make important decisions implicitly - as a developer you will
-have to decide whether to use encrypted version or integer one, on a case-by-case
-basis. The additional decryption/encryption step for URLs may seem annoying,
-and maybe it is, but very often the advantages are worth the trouble.
+It worth to note that using a solution like this doesn't come without costs.
+It may take a bit of time getting used to non-scalar id in models. The additional 
+decryption/encryption step for URLs may be annoying, so you have to decide if the 
+advantages are worth the trouble in your case. The library doesn't try to make 
+important decisions implicitly - as a developer you will have to decide whether 
+to use encrypted version or integer one, on a case-by-case basis.
 
 The encryption we use is deterministic - the encrypted id is defined by the secret
 key and the salt. As long as you don't change them you can use the encrypted ids in
